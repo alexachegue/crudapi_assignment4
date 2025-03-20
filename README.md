@@ -4,7 +4,7 @@
     - name - String
     - description - String
     - breed - String
-    - age - double
+    - age - int
     - activeDate - Date
 2. The API must have endpoints to achieve
     - [ ]  get all butterfly spirit animal users
