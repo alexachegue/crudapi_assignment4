@@ -2,6 +2,9 @@ package com.csc340.crudapi.butterfly;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -18,10 +21,12 @@ public class Butterfly{
     private String description;
     private String breed;
     private int age;
-    private Date activeDate;
+    @Column(name = "active_date")
+    @CreationTimestamp
+    private LocalDate activeDate;
 
 
-    public Butterfly(int butterflyId, String name, String description, String breed, int age, Date activeDate) {
+    public Butterfly(int butterflyId, String name, String description, String breed, int age, LocalDate activeDate) {
         this.butterflyId = butterflyId;
         this.name = name;
         this.description = description;
@@ -31,7 +36,7 @@ public class Butterfly{
 
     }
 
-    public Butterfly(String name, String description, String breed, int age, Date activeDate){
+    public Butterfly(String name, String description, String breed, int age, LocalDate activeDate){
         this.name = name;
         this.description = description;
         this.breed = breed;
@@ -84,11 +89,11 @@ public class Butterfly{
         this.age = age;
     }
 
-    public Date getActiveDate(){
+    public LocalDate getActiveDate(){
         return activeDate;
     }
 
-    public void setActiveDate(Date activeDate){
+    public void setActiveDate(LocalDate activeDate){
         this.activeDate = activeDate;
     }
 

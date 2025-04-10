@@ -3,14 +3,16 @@ package com.csc340.crudapi.butterfly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * Includes all REST API endpoint mappings for the Butterfly object
+ * Includes all MVC mappings for the Butterfly object
  */
-@RestController
+@Controller
 @RequestMapping("/butterfly")
 public class ButterflyController{
 
@@ -20,11 +22,13 @@ public class ButterflyController{
     /**
      * Get a list of all Butterflys in the database
      * http://localhost:8080/butterfly/all
-     * @return a list of all Butterfly
+     * @return a list of Butterfly objects
      */
     @GetMapping("/all")
-    public Object getAllButterflys(){
-        return new ResponseEntity<>(service.getAllButterflys(), HttpStatus.OK);
+    public Object getAllButterflys(Model model){
+        model.addAttribute("butterflyList", service.getAllButterflys());
+        model.addAttribute("title", "All Butterflies");
+        return "animal-list";
     }
 
     /**
@@ -32,11 +36,13 @@ public class ButterflyController{
      * http://localhost:8080/butterfly/butterflyId
      *
      * @param butterflyId the unique Butterfly ID
-     * @return the Butterfly with that id
+     * @return one Butterfly object
      */
     @GetMapping("/{butterflyId}")
-    public Object getAButterfly(@PathVariable int butterflyId){
-        return new ResponseEntity<>(service.getButterflyById(butterflyId), HttpStatus.OK);
+    public Object getAButterfly(@PathVariable int butterflyId, Model model){
+        model.addAttribute("butterfly", service.getButterflyById(butterflyId));
+        model.addAttribute("title", "Butterfly #: " + butterflyId);
+        return "animal-details";
     }
 
     /**
@@ -44,11 +50,13 @@ public class ButterflyController{
      * http://localhost:8080/butterfly/name?search=jug
      *
      * @param search the name search
-     * @return the Butterfly with the search containing their name
+     * @return list of Butterfly objects matching the search name
      */
     @GetMapping("/name")
-    public Object getButterflyByName(@RequestParam(name = "search", defaultValue = "") String search){
-        return new ResponseEntity<>(service.getButterflyByNameSearch(search), HttpStatus.OK);
+    public Object getButterflyByName(@RequestParam String search, Model model){
+        model.addAttribute("butterflyList", service.getButterflyByNameSearch(search));
+        model.addAttribute("title", "Butterflies by Name: " + search);
+        return "animal-list";
     }
 
     /**
@@ -59,37 +67,77 @@ public class ButterflyController{
      * @return a list of Butterflys of a specific breed
      */
     @GetMapping("/breed/{breed}")
-    public Object getButterflyByBreed(@PathVariable String breed){
-        return new ResponseEntity<>(service.getButterflyByBreed(breed), HttpStatus.OK);
+    public Object getButterflyByBreed(@PathVariable String breed, Model model) {
+        model.addAttribute("butterflyList", service.getButterflyByBreed(breed));
+        model.addAttribute("title", "Butterflies by Breed: " + breed);
+        return "animal-list";
+    }
+
+    /**
+     * Show the view for the Butterfly form.
+     *
+     * @param model
+     * @return the form view
+     */
+    @GetMapping("/createForm")
+    public String showCreateForm(Model model){
+        Butterfly butterfly = new Butterfly();
+        model.addAttribute("butterfly", butterfly);
+        model.addAttribute("title", "Create New Butterfly");
+        return "animal-create";
     }
 
     /**
      * Create a new Butterfly entry
+     * @param butterfly the new Butterfly object
+     * @return the updated list of Butterflies
      */
     @PostMapping("/new")
-    public Object addNewButterfly(@RequestBody Butterfly butterfly){
+    public Object addNewButterfly(Butterfly butterfly){
         service.addNewButterfly(butterfly);
-        return new ResponseEntity<>(service.getAllButterflys(), HttpStatus.CREATED);
+        return "redirect:/butterfly/all";
     }
 
 
     /**
-     * Update an exisiting Butterfly object
+     * Show the update form.
+     * @param butterflyId
+     * @param model
+     * @return the update form view
      */
-    @PutMapping("/update/{butterflyId}")
-    public Object updateButterfly(@PathVariable int butterflyId, @RequestBody Butterfly butterfly){
+    @GetMapping("/update/{butterflyId}")
+    public String showUpdateForm(@PathVariable int butterflyId, Model model){
+        model.addAttribute("butterfly", service.getButterflyById(butterflyId));
+        model.addAttribute("title", "Update Butterfly");
+        return "animal-update";
+    }
+
+    /**
+     * Update an exisiting Butterfly object.
+     * @param butterflyId
+     * @param butterfly
+     * @return the update Butterfly object
+     */
+    @PostMapping("/update/{butterflyId}")
+    public Object updateButterfly(@PathVariable int butterflyId, Butterfly butterfly){
         service.updateButterfly(butterflyId, butterfly);
-        return new ResponseEntity<>(service.getButterflyById(butterflyId), HttpStatus.CREATED);
+        return "redirect:/butterfly/" + butterflyId;
     }
 
 
     /**
      * Delete a Butterfly object
      */
-    @DeleteMapping("/delete/{butterflyId}")
+    @GetMapping("/delete/{butterflyId}")
     public Object deleteButterflyById(@PathVariable int butterflyId){
         service.deleteButterflyById(butterflyId);
-        return new ResponseEntity<>(service.getAllButterflys(), HttpStatus.OK);
+        return "redirect:/butterfly/all";
+    }
+
+    @GetMapping("/about")
+    public Object getAbout(Model model){
+        model.addAttribute("title", "About Us");
+        return "animal-about";
     }
 
 }
